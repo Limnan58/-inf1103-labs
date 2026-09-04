@@ -32,3 +32,5 @@ print("Content Category:", category)
 
 if age>40 and category == "fun":
     print("You are old what is fun for you?")
+
+    #accidentlly commited Activity 5 as 4 will just proceed
