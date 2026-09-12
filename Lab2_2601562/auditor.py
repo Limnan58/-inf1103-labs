@@ -1,8 +1,10 @@
-# 1. Initialize inventory to zero
+# auditor.py
+# Real-time stock delivery auditor
+
 def main():
-    
+    # 1. Initialize inventory to zero
     inventory = 0
-    MAX_CAPACITY = 1000  # Storage capacity limit
+    MAX_CAPACITY = 500        # Total storage cap
 
     print("=== Stock Delivery Auditor ===")
     print(f"Storage capacity: {MAX_CAPACITY}")
@@ -19,8 +21,6 @@ def main():
             break
 
         # 3 & 4. Accept integers, reject non-numeric strings
-        # .isdigit() catches text like "ten" but also rejects negatives ("-5")
-        # so we check for a leading '-' separately to give a clearer error.
         if user_input.lstrip("-").isdigit():
             quantity = int(user_input)
         else:
@@ -32,11 +32,11 @@ def main():
             print("Error: Quantity cannot be negative.\n")
             continue
 
-        # 5. Enforce storage capacity
+        # 5. Enforce total storage cap (500)
         if inventory + quantity > MAX_CAPACITY:
-            print(f"Error: Exceeds storage capacity. "
+            print(f"Error: Over-stock! Storage is capped at {MAX_CAPACITY}. "
                   f"Current: {inventory}, Attempted: {quantity}, "
-                  f"Max: {MAX_CAPACITY}\n")
+                  f"Remaining space: {MAX_CAPACITY - inventory}.\n")
             continue
 
         # Valid entry — update inventory
