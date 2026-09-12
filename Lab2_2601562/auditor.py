@@ -20,28 +20,22 @@ def main():
             print("Auditor shutting down. Goodbye!")
             break
 
-        # 3 & 4. Accept integers, reject non-numeric strings
-        if user_input.lstrip("-").isdigit():
-            quantity = int(user_input)
-        else:
+        # 3, 4 & 5. Validate the entry with an if / elif / else chain
+        if not user_input.lstrip("-").isdigit():
+            # Not a number at all (e.g., "ten", "abc")
             print("Error: Invalid input. Please enter a whole number.\n")
-            continue
-
-        # Reject negative values
-        if quantity < 0:
+        elif int(user_input) < 0:
+            # Negative value
             print("Error: Quantity cannot be negative.\n")
-            continue
-
-        # 5. Enforce total storage cap (500)
-        if inventory + quantity > MAX_CAPACITY:
+        elif inventory + int(user_input) > MAX_CAPACITY:
+            # Would exceed the 500 cap
             print(f"Error: Over-stock! Storage is capped at {MAX_CAPACITY}. "
-                  f"Current: {inventory}, Attempted: {quantity}, "
+                  f"Current: {inventory}, Attempted: {int(user_input)}, "
                   f"Remaining space: {MAX_CAPACITY - inventory}.\n")
-            continue
-
-        # Valid entry — update inventory
-        inventory += quantity
-        print(f"Accepted. Current inventory: {inventory}\n")
+        else:
+            # Everything is valid — accept the delivery
+            inventory += int(user_input)
+            print(f"Accepted. Current inventory: {inventory}\n")
 
 
 if __name__ == "__main__":
