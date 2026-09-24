@@ -1,0 +1,42 @@
+[
+  {
+    "timestamp": "2026-09-23T10:31:29",
+    "max_walking_time": 10.0,
+    "budget": 50.0,
+    "dietary_requirement": "none",
+    "allergies": [
+      "none"
+    ],
+    "food_preference": "none",
+    "time_requirement": "now",
+    "natural_language_request": "no spicy",
+    "location": "ang mo kio"
+  },
+  {
+    "timestamp": "2026-09-23T10:33:18",
+    "max_walking_time": 20.0,
+    "budget": 20.0,
+    "dietary_requirement": "none",
+    "allergies": [
+      "none"
+    ],
+    "food_preference": "japan",
+    "time_requirement": "now",
+    "natural_language_request": "none",
+    "location": "amk"
+  },
+  {
+    "timestamp": "2026-09-23T10:47:54",
+    "max_walking_time": 10.0,
+    "budget": 50.0,
+    "dietary_requirement": "none",
+    "allergies": [
+      "no prawn",
+      "no egg"
+    ],
+    "food_preference": "none",
+    "time_requirement": "now",
+    "natural_language_request": "none",
+    "location": "nex"
+  }
+]
