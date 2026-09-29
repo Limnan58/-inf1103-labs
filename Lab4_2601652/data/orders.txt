@@ -1,0 +1,3 @@
+1001,USB Cable,2
+1002,Laptop Stand,10
+1003,Cable,20

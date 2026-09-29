@@ -1,7 +1,14 @@
 # modular_auditor.py
 # Simplified order tracker matching the target output format
 
-ORDERS_FILE = "orders.txt"
+import os
+
+# Use the container path when running in Docker (mounted at /app/data),
+# otherwise fall back to a local file next to this script.
+if os.path.isdir("/app/data"):
+    ORDERS_FILE = "/app/data/orders.txt"   # inside Docker
+else:
+    ORDERS_FILE = "orders.txt"             # local Windows/Mac/Linux
 
 
 def parse_tx_id(tx_id_str):
@@ -127,7 +134,7 @@ def get_quantity():
 def main():
     # 1. Load and display current orders
     orders = load_inventory()
-    
+
     print("Current Orders:\n")
     display_history(orders)
     print()  # Blank line
