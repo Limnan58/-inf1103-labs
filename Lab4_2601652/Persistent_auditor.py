@@ -98,6 +98,10 @@ def get_product_name():
     """Ask the user for a product name."""
     product = input("Enter Product Name: ").strip()
 
+    if product.lower() == "quit":
+        print("Program stopped.")
+        return None
+
     if product == "":
         print("Error: Product name cannot be empty.\n")
         return None
@@ -108,6 +112,10 @@ def get_product_name():
 def get_quantity():
     """Ask the user for a quantity."""
     quantity = input("Enter Quantity: ").strip()
+
+    if quantity.lower() == "quit":
+        print("Program stopped.")
+        return None
 
     if not quantity.isdigit() or int(quantity) <= 0:
         print("Error: Quantity must be a positive whole number.\n")
