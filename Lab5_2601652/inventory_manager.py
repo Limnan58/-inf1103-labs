@@ -4,7 +4,11 @@
 import json
 import os
 
-INVENTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
+# Use /app/data inside Docker (mounted as a volume), otherwise next to the script.
+if os.path.isdir("/app/data"):
+    INVENTORY_FILE = "/app/data/inventory.json"
+else:
+    INVENTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
 
 DEFAULT_INVENTORY = [
     {"id": "P001", "name": "Laptop",   "price": 1200.00, "stock": 15},
