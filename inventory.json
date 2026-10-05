@@ -9,12 +9,18 @@
         "id": "P002",
         "name": "Mouse",
         "price": 25.5,
-        "stock": 10
+        "stock": 20
     },
     {
         "id": "P003",
         "name": "Keyboard",
         "price": 45.0,
         "stock": 25
+    },
+    {
+        "id": "P004",
+        "name": "Lights",
+        "price": 20.0,
+        "stock": 30
     }
 ]
