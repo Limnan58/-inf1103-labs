@@ -2,17 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class Product(ABC):
-    """Abstract base class for every product in the system.
-
-    Single responsibility: store one product's common information and
-    control how that information (e.g. stock) is changed.
-
-    Product is abstract - it cannot be created directly. Every product
-    must be a specific type (PhysicalProduct or DigitalProduct) that
-    implements get_fulfilment_info().
-    """
-
-    PRODUCT_TYPE = None   # each subclass sets its own type label (used for JSON)
+    PRODUCT_TYPE = None
 
     def __init__(self, product_id, name, price, stock):
         if not str(product_id).strip():
@@ -22,14 +12,11 @@ class Product(ABC):
         if float(price) < 0:
             raise ValueError("Price must be non-negative.")
 
-        # Private attributes (name-mangled) - change them only through methods
         self.__product_id = str(product_id).strip()
         self.__name = str(name).strip()
         self.__price = float(price)
         self.__stock = 0
-        self.update_stock(stock)   # reuse the same validation rules
-
-    # ---------- Read-only access (getters) ----------
+        self.update_stock(stock)
 
     @property
     def product_id(self):
@@ -47,10 +34,7 @@ class Product(ABC):
     def stock(self):
         return self.__stock
 
-    # ---------- Behaviour ----------
-
     def update_stock(self, quantity):
-        """Set the stock to a new quantity. The Product decides what is valid."""
         if isinstance(quantity, bool) or not isinstance(quantity, int):
             raise ValueError("Stock must be a whole number.")
         if quantity < 0:
@@ -58,14 +42,10 @@ class Product(ABC):
         self.__stock = quantity
 
     def display_information(self):
-        """Display the information common to every product.
-        Subclasses override this and call super() to add their own details."""
         print(f"ID: {self.__product_id} | Name: {self.__name} | "
               f"Price: ${self.__price:.2f} | Stock: {self.__stock}", end="")
 
     def to_dict(self):
-        """Return the common data as a dictionary (used for saving to JSON).
-        Subclasses extend this with their own attributes."""
         return {
             "type": self.PRODUCT_TYPE,
             "id": self.__product_id,
@@ -74,9 +54,6 @@ class Product(ABC):
             "stock": self.__stock,
         }
 
-    # ---------- Abstract behaviour (each subclass MUST implement) ----------
-
     @abstractmethod
     def get_fulfilment_info(self):
-        """Return a message describing how this product is delivered."""
         pass

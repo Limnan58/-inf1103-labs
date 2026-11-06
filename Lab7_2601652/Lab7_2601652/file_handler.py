@@ -7,7 +7,6 @@ from inventory import Inventory
 
 
 class FileHandler:
-    
 
     DEFAULT_PRODUCTS = [
         PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.0),
@@ -37,16 +36,12 @@ class FileHandler:
             return self.__default_inventory()
 
     def save(self, inventory):
-        # Each product knows how to turn itself into a dictionary
         data = [product.to_dict() for product in inventory.get_products()]
         with open(self.__file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
 
-    # ---------- Private helpers ----------
-
     def __create_product(self, item):
-        """Use the saved "type" to create the correct subclass."""
-        product_type = item.get("type", "physical")   # old Lab 6 files had no type
+        product_type = item.get("type", "physical")
 
         if product_type == "physical":
             return PhysicalProduct(item["id"], item["name"], item["price"],

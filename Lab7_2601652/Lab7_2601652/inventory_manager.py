@@ -1,4 +1,3 @@
-"""Main program: shows the menu, gets user input, and calls Inventory methods."""
 import os
 
 from physical_product import PhysicalProduct
@@ -12,8 +11,6 @@ if os.path.isdir("/app/data"):
 else:
     INVENTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
 
-
-# ---------- Menu actions ----------
 
 def add_product(inventory):
     print("\nAdd New Product")
@@ -79,7 +76,7 @@ def search_product(inventory):
     print("-" * 40)
     product.display_information()
     print(f"Fulfilment: {product.get_fulfilment_info()}")
-    if isinstance(product, CanBeShipped):          # only shippable products have this
+    if isinstance(product, CanBeShipped):
         print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
     print("-" * 40 + "\n")
 
@@ -103,8 +100,6 @@ def print_menu():
     print("6. Exit")
     print("------------------------\n")
 
-
-# ---------- Main ----------
 
 def main():
     file_handler = FileHandler(INVENTORY_FILE)
