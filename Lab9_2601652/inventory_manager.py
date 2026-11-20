@@ -1,11 +1,15 @@
 import os
 
 from can_be_shipped import CanBeShipped
+from discount import (BulkDiscount, DiscountStrategy, NoDiscount,
+                      PercentageDiscount, StudentDiscount)
 from file_handler import FileHandler
+from input_helpers import get_non_negative_int, get_positive_float, get_positive_int
 from inventory import Inventory
 from order import Order
 from product import Product
 from product_factory import ProductFactory
+from product_loader import load_products
 from supplier import Supplier
 
 
@@ -13,6 +17,11 @@ if os.path.isdir("/app/data"):
     INVENTORY_FILE: str = "/app/data/inventory.json"
 else:
     INVENTORY_FILE: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
+
+if os.path.exists("/app/data/products.csv"):
+    PRODUCTS_FILE: str = "/app/data/products.csv"
+else:
+    PRODUCTS_FILE: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "products.csv")
 
 
 def show_product_details(product: Product) -> None:
@@ -56,17 +65,18 @@ def add_product(inventory: Inventory) -> None:
         print(f"Error: Product ID {product_id} already exists.\n"); return
 
     name = input("Product Name: ").strip()
+    # The helpers keep asking until the value is valid, so we never carry on
+    # with incomplete data.
+    price = get_positive_float("Price: ")
+    stock = get_non_negative_int("Stock Quantity: ")
     try:
-        price = float(input("Price: ").strip())
-        stock = int(input("Stock Quantity: ").strip())
-
         if product_type == "1":
-            weight = float(input("Weight (kg): ").strip())
+            weight = get_positive_float("Weight (kg): ")
             supplier = get_supplier(inventory)
             product: Product = ProductFactory.create("physical", product_id, name, price,
                                                      stock, supplier, weight=weight)
         else:
-            download_size = float(input("Download Size (MB): ").strip())
+            download_size = get_positive_float("Download Size (MB): ")
             supplier = get_supplier(inventory)
             product = ProductFactory.create("digital", product_id, name, price,
                                             stock, supplier, download_size=download_size)
@@ -88,11 +98,8 @@ def update_stock(inventory: Inventory) -> None:
     print(f"Name: {product.name}")
     print(f"Current Stock: {product.stock}\n")
 
-    try:
-        new_stock = int(input("New Stock Quantity: ").strip())
-        inventory.update_stock(product_id, new_stock)
-    except ValueError as e:
-        print(f"Error: {e}\n"); return
+    new_stock = get_non_negative_int("New Stock Quantity: ")
+    inventory.update_stock(product_id, new_stock)
 
     print("Stock updated successfully!\n")
 
@@ -123,6 +130,33 @@ def remove_product(inventory: Inventory) -> None:
     print(f"{product.name} removed from inventory.\n")
 
 
+def choose_discount() -> DiscountStrategy:
+    # The client chooses which strategy object to create. Order itself
+    # never sees this choice; it only calls discount.apply().
+    print("Discount:")
+    print("  1. No discount")
+    print("  2. Percentage discount")
+    print("  3. Bulk discount")
+    print("  4. Student discount (5%)")
+    while True:
+        choice = input("Choose discount (1-4): ").strip()
+        if choice == "1":
+            return NoDiscount()
+        if choice == "2":
+            while True:
+                try:
+                    return PercentageDiscount(get_positive_float("Percentage off: "))
+                except ValueError as e:
+                    print(f"Error: {e}")
+        if choice == "3":
+            threshold = get_positive_float("Minimum order total: ")
+            amount = get_positive_float("Amount off: ")
+            return BulkDiscount(threshold, amount)
+        if choice == "4":
+            return StudentDiscount()
+        print("Please choose 1, 2, 3 or 4.")
+
+
 def create_order(inventory: Inventory) -> None:
     print("\nCreate Order")
     try:
@@ -137,15 +171,25 @@ def create_order(inventory: Inventory) -> None:
         product = inventory.find_product(product_id)
         if product is None:
             print("Product not found."); continue
-        try:
-            quantity = int(input("Quantity: ").strip())
-            order.add_order_line(product, quantity)
-        except ValueError as e:
-            print(f"Error: {e}"); continue
+        quantity = get_positive_int("Quantity: ")
+        order.add_order_line(product, quantity)
         print(f"Added {product.name} x {quantity}.")
 
     print()
+    order.set_discount(choose_discount())
+    print()
     order.display_information()
+    print()
+
+
+def load_products_from_csv(inventory: Inventory) -> None:
+    print(f"\nLoad Products from {os.path.basename(PRODUCTS_FILE)}")
+    print("Which supplier provides these products?")
+    try:
+        supplier = get_supplier(inventory)
+    except ValueError as e:
+        print(f"Error: {e}\n"); return
+    load_products(PRODUCTS_FILE, inventory, supplier)
     print()
 
 
@@ -166,8 +210,9 @@ def print_menu() -> None:
     print("4. Search Product")
     print("5. Remove Product")
     print("6. Create Order")
-    print("7. Save Inventory")
-    print("8. Exit")
+    print("7. Load Products from CSV")
+    print("8. Save Inventory")
+    print("9. Exit")
     print("------------------------\n")
 
 
@@ -192,14 +237,16 @@ def main() -> None:
         elif option == "6":
             create_order(inventory)
         elif option == "7":
-            save_inventory(file_handler, inventory)
+            load_products_from_csv(inventory)
         elif option == "8":
+            save_inventory(file_handler, inventory)
+        elif option == "9":
             save_inventory(file_handler, inventory)
             print("Thank you for using Inventory Management System.")
             print("Program terminated.")
             break
         else:
-            print("Invalid option. Please choose 1-8.\n")
+            print("Invalid option. Please choose 1-9.\n")
 
 
 if __name__ == "__main__":
