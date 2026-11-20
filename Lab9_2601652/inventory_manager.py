@@ -1,0 +1,206 @@
+import os
+
+from can_be_shipped import CanBeShipped
+from file_handler import FileHandler
+from inventory import Inventory
+from order import Order
+from product import Product
+from product_factory import ProductFactory
+from supplier import Supplier
+
+
+if os.path.isdir("/app/data"):
+    INVENTORY_FILE: str = "/app/data/inventory.json"
+else:
+    INVENTORY_FILE: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "inventory.json")
+
+
+def show_product_details(product: Product) -> None:
+    # Works with any Product. Each object supplies its own implementation.
+    product.display_information()
+    print(f"Fulfilment: {product.get_fulfilment_info()}")
+
+
+def find_supplier(inventory: Inventory, supplier_id: str) -> Supplier | None:
+    for product in inventory.products:
+        if product.supplier.supplier_id.lower() == supplier_id.strip().lower():
+            return product.supplier
+    return None
+
+
+def get_supplier(inventory: Inventory) -> Supplier:
+    supplier_id = input("Supplier ID: ").strip()
+    supplier = find_supplier(inventory, supplier_id)
+    if supplier is not None:
+        print(f"Using existing supplier: {supplier.name}")
+        return supplier
+
+    supplier_name = input("Supplier Name: ").strip()
+    contact_email = input("Supplier Contact Email: ").strip()
+    return Supplier(supplier_id, supplier_name, contact_email)
+
+
+def add_product(inventory: Inventory) -> None:
+    print("\nAdd New Product")
+    print("Product type:")
+    print("  1. Physical Product")
+    print("  2. Digital Product")
+    product_type = input("Choose type (1/2): ").strip()
+    if product_type not in ("1", "2"):
+        print("Error: Please choose 1 or 2.\n"); return
+
+    product_id = input("Product ID: ").strip()
+    if not product_id:
+        print("Error: Product ID cannot be empty.\n"); return
+    if inventory.find_product(product_id) is not None:
+        print(f"Error: Product ID {product_id} already exists.\n"); return
+
+    name = input("Product Name: ").strip()
+    try:
+        price = float(input("Price: ").strip())
+        stock = int(input("Stock Quantity: ").strip())
+
+        if product_type == "1":
+            weight = float(input("Weight (kg): ").strip())
+            supplier = get_supplier(inventory)
+            product: Product = ProductFactory.create("physical", product_id, name, price,
+                                                     stock, supplier, weight=weight)
+        else:
+            download_size = float(input("Download Size (MB): ").strip())
+            supplier = get_supplier(inventory)
+            product = ProductFactory.create("digital", product_id, name, price,
+                                            stock, supplier, download_size=download_size)
+    except ValueError as e:
+        print(f"Error: {e}\n"); return
+
+    inventory.add_product(product)
+    print("Product added successfully!\n")
+
+
+def update_stock(inventory: Inventory) -> None:
+    print("\nUpdate Stock")
+    product_id = input("Enter Product ID: ").strip()
+    product = inventory.find_product(product_id)
+    if product is None:
+        print("Product not found.\n"); return
+
+    print("\nProduct Found:")
+    print(f"Name: {product.name}")
+    print(f"Current Stock: {product.stock}\n")
+
+    try:
+        new_stock = int(input("New Stock Quantity: ").strip())
+        inventory.update_stock(product_id, new_stock)
+    except ValueError as e:
+        print(f"Error: {e}\n"); return
+
+    print("Stock updated successfully!\n")
+
+
+def search_product(inventory: Inventory) -> None:
+    print("\nSearch Product")
+    product_id = input("Enter Product ID: ").strip()
+    product = inventory.find_product(product_id)
+    if product is None:
+        print("Product not found.\n"); return
+
+    print("\nProduct Found")
+    print("-" * 40)
+    show_product_details(product)
+    product.supplier.display_information()
+    if isinstance(product, CanBeShipped):
+        print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
+    print("-" * 40 + "\n")
+
+
+def remove_product(inventory: Inventory) -> None:
+    print("\nRemove Product")
+    product_id = input("Enter Product ID: ").strip()
+    product = inventory.remove_product(product_id)
+    if product is None:
+        print("Product not found.\n"); return
+
+    print(f"{product.name} removed from inventory.\n")
+
+
+def create_order(inventory: Inventory) -> None:
+    print("\nCreate Order")
+    try:
+        order = Order(input("Order ID: ").strip())
+    except ValueError as e:
+        print(f"Error: {e}\n"); return
+
+    while True:
+        product_id = input("Product ID (leave blank to finish): ").strip()
+        if not product_id:
+            break
+        product = inventory.find_product(product_id)
+        if product is None:
+            print("Product not found."); continue
+        try:
+            quantity = int(input("Quantity: ").strip())
+            order.add_order_line(product, quantity)
+        except ValueError as e:
+            print(f"Error: {e}"); continue
+        print(f"Added {product.name} x {quantity}.")
+
+    print()
+    order.display_information()
+    print()
+
+
+def save_inventory(file_handler: FileHandler, inventory: Inventory) -> None:
+    print("\nSaving inventory...")
+    file_handler.save(inventory)
+    print("Inventory saved successfully to inventory.json.\n")
+
+
+def print_menu() -> None:
+    print("=" * 44)
+    print("INVENTORY MANAGEMENT SYSTEM")
+    print("=" * 44)
+    print("\n--------- MENU ---------")
+    print("1. Display All Products")
+    print("2. Add Product")
+    print("3. Update Stock")
+    print("4. Search Product")
+    print("5. Remove Product")
+    print("6. Create Order")
+    print("7. Save Inventory")
+    print("8. Exit")
+    print("------------------------\n")
+
+
+def main() -> None:
+    file_handler = FileHandler(INVENTORY_FILE)
+    inventory = file_handler.load()
+
+    while True:
+        print_menu()
+        option = input("Enter option: ").strip()
+
+        if option == "1":
+            inventory.display_all_products()
+        elif option == "2":
+            add_product(inventory)
+        elif option == "3":
+            update_stock(inventory)
+        elif option == "4":
+            search_product(inventory)
+        elif option == "5":
+            remove_product(inventory)
+        elif option == "6":
+            create_order(inventory)
+        elif option == "7":
+            save_inventory(file_handler, inventory)
+        elif option == "8":
+            save_inventory(file_handler, inventory)
+            print("Thank you for using Inventory Management System.")
+            print("Program terminated.")
+            break
+        else:
+            print("Invalid option. Please choose 1-8.\n")
+
+
+if __name__ == "__main__":
+    main()

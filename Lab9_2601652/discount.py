@@ -66,3 +66,15 @@ class BulkDiscount(DiscountStrategy):
 
     def __str__(self) -> str:
         return f"${self.__amount:.2f} off orders of ${self.__threshold:.2f} or more"
+
+
+class StudentDiscount(DiscountStrategy):
+    """Added in Section 2.4 to show OCP: Order did not change at all."""
+
+    STUDENT_RATE: float = 5.0
+
+    def apply(self, total: float) -> float:
+        return total * (1 - self.STUDENT_RATE / 100)
+
+    def __str__(self) -> str:
+        return f"Student discount ({self.STUDENT_RATE:g}% off)"
