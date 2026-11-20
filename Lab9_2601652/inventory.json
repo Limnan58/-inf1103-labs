@@ -1,0 +1,67 @@
+[
+    {
+        "type": "physical",
+        "id": "P001",
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 15,
+        "supplier": {
+            "id": "S001",
+            "name": "TechSource Pte Ltd",
+            "contact_email": "sales@techsource.example"
+        },
+        "weight": 2.0
+    },
+    {
+        "type": "physical",
+        "id": "P002",
+        "name": "Mouse",
+        "price": 25.5,
+        "stock": 20,
+        "supplier": {
+            "id": "S001",
+            "name": "TechSource Pte Ltd",
+            "contact_email": "sales@techsource.example"
+        },
+        "weight": 0.1
+    },
+    {
+        "type": "physical",
+        "id": "P003",
+        "name": "Keyboard",
+        "price": 45.0,
+        "stock": 25,
+        "supplier": {
+            "id": "S001",
+            "name": "TechSource Pte Ltd",
+            "contact_email": "sales@techsource.example"
+        },
+        "weight": 0.8
+    },
+    {
+        "type": "physical",
+        "id": "P004",
+        "name": "Lights",
+        "price": 20.0,
+        "stock": 30,
+        "supplier": {
+            "id": "S001",
+            "name": "TechSource Pte Ltd",
+            "contact_email": "sales@techsource.example"
+        },
+        "weight": 0.5
+    },
+    {
+        "type": "digital",
+        "id": "D001",
+        "name": "Antivirus Software",
+        "price": 49.9,
+        "stock": 100,
+        "supplier": {
+            "id": "S002",
+            "name": "SoftWorks Digital",
+            "contact_email": "orders@softworks.example"
+        },
+        "download_size": 350.0
+    }
+]
