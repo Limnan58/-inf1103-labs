@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+inventory.json
+.git
+*.png
+*.docx
